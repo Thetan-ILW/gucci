@@ -1,0 +1,10 @@
+{
+    "name": "gucci",
+    "display_name": "gucci!mania",
+    "desc": "Plugin that makes gucci!mania work",
+    "creator": "Thetan",
+    "version": 0.1,
+    "types": {
+        "require": "gucci_init",
+    },
+}
