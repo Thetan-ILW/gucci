@@ -1,4 +1,5 @@
 soundsphere.zip
+soundsphere/*
 build/*
 test_build/*
 pkg/*
