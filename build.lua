@@ -39,7 +39,6 @@ end
 local function help()
 	print("Build script for gucci!mania\nAvailable options:")
 	print("	-b build	Build the entire project and pack everything into one game.love archive")
-	print("	-tb test-build	Build the project for tests. Uses symlinks to prevent copying files over and over again.")
 	print("	-r run		Run the test build")
 	print("	-d download	Download base soundsphere with all required plugins.")
 	print("	-u update	Update plugins")
@@ -112,7 +111,6 @@ local function build()
 
 	mkdir("build/userdata")
 	copyDir("soundsphere/userdata/hitsounds", "build/userdata/hitsounds")
-	copyDir("skins", "build/userdata/skins")
 	copyDir("pkg", "build/userdata/pkg")
 	copyDir("assets", "build/userdata/pkg/osuUI/osu_ui")
 	copyDir("userdata", "build")
@@ -122,28 +120,6 @@ local function build()
 	copyFile("soundsphere/game-linux", "build/game-linux")
 	copyFile("soundsphere/game-win64.bat", "build/game-win64.bat")
 	print("INFO: Build created")
-end
-
-local function buildTest()
-	if dirExists("test_build") then
-		os.execute("rm -rf test_build")
-	end
-
-	mkdir("test_build")
-	copyDir("soundsphere/bin", "test_build/bin")
-	symlink("pkg/MinaCalc/minacalc/bin/linux64/libminacalc.so", "test_build/bin/linux64/libminacalc.so")
-	symlink("soundsphere/resources", "test_build/resources")
-
-	mkdir("test_build/userdata")
-	symlink("soundsphere/userdata/hitsounds", "test_build/userdata/hitsounds")
-	copyDir("skins", "test_build/userdata/skins")
-	copyDir("pkg", "test_build/userdata/pkg")
-	copyFile("test_build_configs/settings.lua", "test_build/userdata/settings.lua")
-
-	symlink("soundsphere/game.love", "test_build/game.love")
-	symlink("soundsphere/conf.lua", "test_build/conf.lua")
-	symlink("soundsphere/game-linux", "test_build/game-linux")
-	print("INFO: Test build created")
 end
 
 local function run()
@@ -166,8 +142,6 @@ local function processArguments()
 			end
 		elseif v == "-u" or v == "update" then
 			updatePlugins()
-		elseif v == "-tb" or v == "test-build" then
-			buildTest()
 		elseif v == "-b" or v == "build" then
 			build()
 		elseif v == "-r" or v == "run" then
