@@ -3,3 +3,5 @@ soundsphere/*
 build/*
 test_build/*
 pkg/*
+temp/*
+launcher/gucci_launcher/x64

@@ -25,7 +25,7 @@ local function symlink(source, dest)
 end
 
 local function copyDir(source, dest)
-	os.execute(("cp -r %s %s"):format(source, dest))
+	os.execute(("cp -rf %s %s"):format(source, dest))
 end
 
 local function copyFile(source, dest)
@@ -36,9 +36,14 @@ local function mkdir(name)
 	os.execute(("mkdir %s"):format(name))
 end
 
+local function replaceWithGucci(file)
+	os.execute(("sed -i 's/soundsphere/gucci!mania/g' %s"):format(file))
+end
+
 local function help()
 	print("Build script for gucci!mania\nAvailable options:")
 	print("	-b build	Build the entire project and pack everything into one game.love archive")
+	print(" -tb test-build	Build the project, but without packing files into game.love")
 	print("	-r run		Run the test build")
 	print("	-d download	Download base soundsphere with all required plugins.")
 	print("	-u update	Update plugins")
@@ -82,7 +87,7 @@ local function download()
 			print("INFO: Updating", v.name)
 			os.execute(("cd pkg/%s;git fetch;git pull"):format(v.name))
 		else
-			os.execute(("git clone --depth 1 %s pkg/%s"):format(v.link, v.name))
+			os.execute(("git clone %s pkg/%s"):format(v.link, v.name))
 		end
 	end
 
@@ -98,28 +103,60 @@ local function updatePlugins()
 	end
 end
 
-local function build()
+local function build() -----------------------------------------------------------------
 	if dirExists("build") then
 		os.execute("rm -rf build")
+	end
+	if dirExists("temp") then
+		os.execute("rm -rf temp")
 	end
 
 	mkdir("build")
 	copyDir("soundsphere/bin", "build/bin")
 	copyFile("pkg/MinaCalc/minacalc/bin/linux64/libminacalc.so", "build/bin/linux64/libminacalc.so")
 	copyFile("pkg/MinaCalc/minacalc/bin/win64/libminacalc.dll", "build/bin/win64/libminacalc.dll")
-	copyDir("soundsphere/resources", "build/resources")
+	copyFile("soundsphere/conf.lua", "build/conf.lua")
+
+	os.execute("unzip soundsphere/game.love -d temp/")
+	copyDir("soundsphere/resources", "temp")
+	copyDir("love/*", "temp")
+	replaceWithGucci("temp/sphere/app/WindowModel.lua")
+	replaceWithGucci("temp/sphere/persistence/CacheModel/LocationManager.lua")
+	os.execute("cd temp && zip -r ../build/game.love .")
 
 	mkdir("build/userdata")
-	copyDir("soundsphere/userdata/hitsounds", "build/userdata/hitsounds")
-	copyDir("pkg", "build/userdata/pkg")
+	mkdir("build/userdata/pkg")
+	copyDir("pkg/*", "build/userdata/pkg")
+	copyDir("gucci", "build/userdata/pkg")
 	copyDir("assets", "build/userdata/pkg/osuUI/osu_ui")
-	copyDir("userdata", "build")
+	replaceWithGucci("build/userdata/pkg/osuUI/osu_ui/localization/en.lua")
+	replaceWithGucci("build/userdata/pkg/osuUI/osu_ui/localization/ru.lua")
 
-	copyFile("soundsphere/game.love", "build/game.love")
-	copyFile("soundsphere/conf.lua", "build/conf.lua")
-	copyFile("soundsphere/game-linux", "build/game-linux")
-	copyFile("soundsphere/game-win64.bat", "build/game-win64.bat")
 	print("INFO: Build created")
+end -----------------------------------------------------------------------------------
+
+local function buildTest()
+	if dirExists("test_build") then
+		os.execute("rm -rf test_build")
+	end
+
+	mkdir("test_build")
+	copyDir("soundsphere/bin", "test_build/bin")
+	copyFile("pkg/MinaCalc/minacalc/bin/linux64/libminacalc.so", "test_build/bin/linux64/libminacalc.so")
+	copyFile("pkg/MinaCalc/minacalc/bin/win64/libminacalc.dll", "test_build/bin/win64/libminacalc.dll")
+	copyDir("soundsphere/resources", "test_build/resources")
+
+	mkdir("test_build/userdata")
+	copyDir("soundsphere/userdata/hitsounds", "test_build/userdata/hitsounds")
+	copyDir("pkg", "test_build/userdata/pkg")
+	copyDir("assets", "test_build/userdata/pkg/osuUI/osu_ui")
+	copyDir("userdata", "test_build")
+
+	copyFile("soundsphere/game.love", "test_build/game.love")
+	copyFile("soundsphere/conf.lua", "test_build/conf.lua")
+	copyFile("soundsphere/game-linux", "test_build/game-linux")
+	copyFile("soundsphere/game-win64.bat", "test_build/game-win64.bat")
+	print("INFO: Test build created")
 end
 
 local function run()
@@ -144,6 +181,8 @@ local function processArguments()
 			updatePlugins()
 		elseif v == "-b" or v == "build" then
 			build()
+		elseif v == "-tb" or v == "test-build" then
+			buildTest()
 		elseif v == "-r" or v == "run" then
 			run()
 		end
