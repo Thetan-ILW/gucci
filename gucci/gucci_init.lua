@@ -55,7 +55,10 @@ function gucci.findOtherGames()
 	)
 
 	if osu_reg_path then
-		games["osu!"] = string.split(osu_reg_path, '"')[2]:gsub("osu!.exe", ""):gsub("\\", "/")
+		local split = string.split(osu_reg_path, '"')
+		if #split > 1 then
+			games["osu!"] = split[2]:gsub("osu!.exe", ""):gsub("\\", "/")
+		end
 	end
 
 	local etterna_reg_path = winapi.get_reg_value_sz(
@@ -73,7 +76,10 @@ function gucci.findOtherGames()
 	)
 
 	if quaver_reg_path then
-		games["Quaver"] = string.split(quaver_reg_path, '"')[2]:gsub("Quaver.exe", ""):gsub("\\", "/")
+		local split = string.split(quaver_reg_path, '"')
+		if #split > 1 then
+			games["Quaver"] = split[2]:gsub("Quaver.exe", ""):gsub("\\", "/")
+		end
 	end
 
 	return games
