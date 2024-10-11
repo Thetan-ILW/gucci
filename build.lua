@@ -122,6 +122,7 @@ local function build() ---------------------------------------------------------
 	copyDir("love/*", "temp")
 	replaceWithGucci("temp/sphere/app/WindowModel.lua")
 	replaceWithGucci("temp/sphere/persistence/CacheModel/LocationManager.lua")
+	os.execute("sed -i 's/594443609668059149/1294208452503273483/g temp/sphere/app/DiscordModel.lua'")
 	os.execute("cd temp && zip -r ../build/game.love .")
 
 	mkdir("build/userdata")

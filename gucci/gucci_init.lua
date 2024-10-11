@@ -101,10 +101,12 @@ function gucci.setDefaultSettings(configs)
 
 	settings.miscellaneous.autoUpdate = false
 	settings.select.diff_column = "msd_diff"
+	settings.select.chart_preview = false
 
 	local osu = configs.osu_ui
 	osu.scoreSystem = "osu!legacy"
 	osu.judgement = 8
+	osu.songSelect.scoreSource = "osuv1"
 
 	configs.select.judgements = "osu!legacy OD8"
 	configs.play.timings = {
